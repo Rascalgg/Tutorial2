@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -10,16 +11,36 @@ public class PlayerScript : MonoBehaviour
     public float speed;
     public Text score;
     private int scoreValue = 0;
+    
+    public TextMeshProUGUI scoreText;
+    public GameObject WinTextObject;
+    public GameObject LoseTextObject;
 
     // Start is called before the first frame update
     void Start()
     {
         rd2d = GetComponent<Rigidbody2D>();
-        score.text = scoreValue.ToString();
+        score.text = "Score:" + scoreValue.ToString();
+
+        SetCountText();
+        WinTextObject.SetActive(false);
+        SetCountText();
+        LoseTextObject.SetActive(false);
+        
+    }
+
+    void SetCountText()
+    {
+        scoreText.text = "Score:" + scoreValue.ToString();
+        if (scoreValue >=4)
+        {
+            WinTextObject.SetActive(true);
+            Destroy(gameObject);
+        }
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         float hozMovement = Input.GetAxis("Horizontal");   
         float verMovement = Input.GetAxis("Vertical");
@@ -32,7 +53,7 @@ public class PlayerScript : MonoBehaviour
         if(collision.collider.tag == "Coin")
         {
             scoreValue += 1;
-            score.text = scoreValue.ToString();
+            score.text = "Score:" + scoreValue.ToString();
             Destroy(collision.collider.gameObject);
         }
     }
