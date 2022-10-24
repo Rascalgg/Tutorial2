@@ -9,10 +9,11 @@ public class PlayerScript : MonoBehaviour
 
     private Rigidbody2D rd2d;
     public float speed;
-    public Text score;
     private int scoreValue = 0;
+    private int livesValue;
     
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI livesText;
     public GameObject WinTextObject;
     public GameObject LoseTextObject;
 
@@ -20,21 +21,39 @@ public class PlayerScript : MonoBehaviour
     void Start()
     {
         rd2d = GetComponent<Rigidbody2D>();
-        score.text = "Score:" + scoreValue.ToString();
+        scoreText.text = "Score:" + scoreValue.ToString();
+
+        rd2d = GetComponent<Rigidbody2D>();
+        livesValue = 3;
+
 
         SetCountText();
         WinTextObject.SetActive(false);
+
         SetCountText();
         LoseTextObject.SetActive(false);
-        
     }
 
     void SetCountText()
     {
         scoreText.text = "Score:" + scoreValue.ToString();
-        if (scoreValue >=4)
+        if (scoreValue >=8)
         {
             WinTextObject.SetActive(true);
+            Destroy(gameObject);
+        }
+
+        scoreText.text = "Score: " + scoreValue.ToString();
+        if (scoreValue == 4)
+        {
+            livesValue = 3;
+            transform.position = new Vector2(42f, 0.5f);
+        }
+
+        livesText.text = "Lives: " + livesValue.ToString();
+        if (livesValue == 0)
+        {
+            LoseTextObject.SetActive(true);
             Destroy(gameObject);
         }
     }
@@ -53,8 +72,16 @@ public class PlayerScript : MonoBehaviour
         if(collision.collider.tag == "Coin")
         {
             scoreValue += 1;
-            score.text = "Score:" + scoreValue.ToString();
+            SetCountText();
             Destroy(collision.collider.gameObject);
+        }
+
+        if (collision.collider.tag == "Enemy")
+        {
+            Destroy(collision.collider.gameObject);
+            livesValue = livesValue - 1;
+
+            SetCountText();
         }
     }
 
