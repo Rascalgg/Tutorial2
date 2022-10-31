@@ -11,11 +11,20 @@ public class PlayerScript : MonoBehaviour
     public float speed;
     private int scoreValue = 0;
     private int livesValue;
+
+    float inputHorizontal;
+    float inputVertical;
+    bool facingRight = true;
     
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI livesText;
     public GameObject WinTextObject;
     public GameObject LoseTextObject;
+
+    public AudioSource musicSource;
+    public AudioClip musicClipOne;
+    public AudioClip winMusic;
+    Animator anim;
 
     // Start is called before the first frame update
     void Start()
@@ -26,12 +35,16 @@ public class PlayerScript : MonoBehaviour
         rd2d = GetComponent<Rigidbody2D>();
         livesValue = 3;
 
+        musicSource.clip = musicClipOne;
+        musicSource.Play();
 
         SetCountText();
         WinTextObject.SetActive(false);
 
         SetCountText();
         LoseTextObject.SetActive(false);
+
+        anim = GetComponent<Animator>();
     }
 
     void SetCountText()
@@ -40,7 +53,10 @@ public class PlayerScript : MonoBehaviour
         if (scoreValue >=8)
         {
             WinTextObject.SetActive(true);
-            Destroy(gameObject);
+            musicSource.clip = winMusic;
+            musicSource.Play();
+        
+            
         }
 
         scoreText.text = "Score: " + scoreValue.ToString();
@@ -64,7 +80,53 @@ public class PlayerScript : MonoBehaviour
         float hozMovement = Input.GetAxis("Horizontal");   
         float verMovement = Input.GetAxis("Vertical");
 
+        inputHorizontal = Input.GetAxisRaw("Horizontal");
+        inputVertical = Input.GetAxisRaw("Vertical");
+
         rd2d.AddForce(new Vector2(hozMovement * speed, verMovement * speed));
+
+
+        if (inputHorizontal > 0 && !facingRight)
+        {
+            Flip();
+        }
+        
+        if (inputHorizontal < 0 && facingRight)
+        {
+            Flip();
+        }
+
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            anim.SetInteger("State", 2);
+            
+        }
+        if (Input.GetKeyUp(KeyCode.W))
+        {
+            anim.SetInteger("State", 0);
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            anim.SetInteger("State", 1);
+            
+        }
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            anim.SetInteger("State", 0);
+        }
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            anim.SetInteger("State", 1);
+            
+        }
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            anim.SetInteger("State", 0);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -84,7 +146,7 @@ public class PlayerScript : MonoBehaviour
             SetCountText();
         }
     }
-
+    
     private void OnCollisionStay2D(Collision2D collision)
     {
         if(collision.collider.tag == "Ground")
@@ -95,4 +157,15 @@ public class PlayerScript : MonoBehaviour
             }
         }
     }
+
+
+    void Flip()
+    {
+        Vector3 currentScale = gameObject.transform.localScale;
+        currentScale.x *= -1;
+        gameObject.transform.localScale = currentScale;
+
+        facingRight = !facingRight;
+    }
 }
+
